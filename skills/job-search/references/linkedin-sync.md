@@ -1,0 +1,3 @@
+# LinkedIn profile sync (milestone 5)
+
+LinkedIn has no API for editing a member's own profile, so this is browser-assisted and never unattended. From `cv/cv.md` write `<workspace>/linkedin/profile.md` with these sections and limits: Headline (220 characters), About (2,600 characters), one Experience entry per role (title, company, dates, location, description up to 2,000 characters), Skills (comma list, 50 max), Featured (link, title, description). Then open linkedin.com/in/me in the host browser and paste one section at a time, showing the user the text before each save and waiting for their confirmation. No browser: hand the user the file to paste.

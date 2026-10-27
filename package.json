@@ -1,0 +1,17 @@
+{
+  "name": "job-search-agent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shareable job-hunting assistant for AI coding agents (Claude Code, Codex): skill + Node engine",
+  "license": "MIT",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  }
+}
