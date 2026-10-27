@@ -17,7 +17,7 @@ export async function createMailProvider(config: Config, secrets: Secrets, log: 
       return new GmailImapProvider({ user: secrets.gmail.user, appPassword: secrets.gmail.appPassword, log });
     }
     case 'outlook-mcp':
-      throw new Error('Outlook support arrives in milestone 3. Use host-connector or host-browser mode meanwhile.');
+      throw new Error('The engine does not read Outlook directly. Set mail.provider to host-connector and use the Outlook MCP server or connector (see references/mail-setup.md in the skill).');
     case 'host-connector':
     case 'host-browser':
       return undefined;

@@ -24,7 +24,7 @@ Then, every day:
 - Processed emails get a `Job Search/Processed` label so they are never read twice.
 - You get a short report. You update the `Status` column when you apply.
 
-**What you need:** job alerts set up on LinkedIn (or other boards) and emailed to a Gmail or Outlook inbox; a Google account; Node 20+; Claude Code or Codex on macOS or Windows.
+**What you need:** job alerts set up on LinkedIn (or other boards) and emailed to a Gmail or Outlook inbox; a Google account for the tracker (free is fine, also for Outlook users); Node 20+ and git; Claude Code or Codex on macOS or Windows.
 
 ## Install
 
@@ -44,12 +44,16 @@ cd packages/engine && npm link && cd ../..
 npx playwright install chromium
 ```
 
-Then copy `skills/job-search` to `~/.claude/skills/` (Claude Code) and/or `~/.agents/skills/` (Codex), start a new session and say **"set up my job search"**.
+Then copy `skills/job-search` to `~/.claude/skills/` (Claude Code) and/or `~/.agents/skills/` (Codex), start a new session and say **"set up my job search"**. On Windows use PowerShell; the folders are under `%USERPROFILE%`. On Codex, allow network for commands when asked (or see [runtimes.md](skills/job-search/references/runtimes.md)).
 
-## Two ways to connect your mail and Sheet
+## Gmail or Outlook, Claude or Codex
 
-- **Through your agent's connectors (simplest).** If your agent already has Gmail and Google Sheets access (claude.ai connectors in Claude Code, plugins in Codex), the agent reads the alerts and writes the rows itself. Nothing else to configure.
-- **Through the engine.** Gmail with an app password (2-Step Verification on, two minutes, no Google Cloud project), and a Google Sheet of your own with a small Apps Script you paste and deploy once ([templates/sheet/README.md](templates/sheet/README.md)). This works from any agent and from scheduled jobs on your computer.
+The agent picks the simplest option for your setup during onboarding:
+
+- **Gmail:** through your agent's Gmail connector (Claude Code) or plugin (Codex), or with a Gmail app password (2-Step Verification on, two minutes, no Google Cloud project).
+- **Outlook (personal or work):** through a small open-source Microsoft 365 server the agent adds for you; you sign in once with a code, no Azure setup. Work accounts can also use the Microsoft 365 connector or Outlook plugin.
+- **The tracker** is a Google Sheet: the agent writes it with its Sheets tool, or the tool writes it through a small script you paste into the Sheet once ([templates/sheet/README.md](templates/sheet/README.md)).
+- **Daily schedule:** in the Claude or Codex desktop app (easiest, on Mac and Windows), in the cloud with Claude routines, or with the system scheduler. Details: [scheduling.md](skills/job-search/references/scheduling.md).
 
 ## Privacy
 
@@ -63,8 +67,9 @@ Everything runs on your machine and your own accounts. Your CV, profile, rubric 
 | LinkedIn alerts (including alerts you forward from another inbox) | working |
 | Interview, profile, rubric, ATS CV in Markdown | working, beta |
 | Gmail app password + Apps Script Sheet | built, first live test pending |
+| Outlook (personal and work) through the Microsoft 365 MCP server | documented, first live test pending |
+| Codex, Windows | documented and path-safe, first live test pending |
 | CV exported as Word and PDF | planned (M2) |
-| Outlook | planned (M3) |
 | Indeed, Glassdoor, Wellfound, Remotive, We Work Remotely, Himalayas, GetOnBoard | planned (M4); other boards' links are picked up generically meanwhile |
 | Status updates from rejection/interview emails, CV and cover letter per vacancy, LinkedIn profile sync | planned (M5) |
 | One-command scheduling, npm package | planned (M6) |

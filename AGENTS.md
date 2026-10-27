@@ -17,7 +17,7 @@ Decide before acting:
 
 Use your own words, in their language, and keep it short. The points that matter:
 
-1. **What it needs from them:** their CV (any format), about 10 minutes for a short interview, job alerts set up on LinkedIn or other boards and emailed to a Gmail or Outlook mailbox, and a Google account for the tracker Sheet.
+1. **What it needs from them:** their CV (any format), about 10 minutes for a short interview, job alerts set up on LinkedIn or other boards and emailed to a Gmail or Outlook mailbox, and a Google account for the tracker Sheet (also for Outlook users). It works in Claude Code or Codex, on macOS or Windows.
 2. **What happens in setup (about 20 minutes, once):**
    - they hand over the CV;
    - you ask 8 short questions (target roles, roles to avoid, location and time zones, work authorization, compensation, dealbreakers, skills the CV undersells, company stage and domain), plus up to 5 more only if the CV leaves gaps;
@@ -47,14 +47,21 @@ npx playwright install chromium               # browser used to read job pages
 jobsearch --version
 ```
 
-On Windows run the same commands in PowerShell. If `npm link` fails for permissions, run the CLI as `node <repo>/packages/engine/dist/cli.js` and tell the user.
+On Windows run the same commands in PowerShell (not as administrator); open a new terminal after `npm link` so PATH refreshes. If `jobsearch` is still not found, use `node <repo>\packages\engine\dist\cli.js` and tell the user.
+
+**Codex:** shell commands have no network by default, and every step above needs it. Ask the user to approve when Codex prompts, or to enable it once in `~/.codex/config.toml` (Windows: `%USERPROFILE%\.codex\config.toml`):
+
+```toml
+[sandbox_workspace_write]
+network_access = true
+```
 
 Then install the skill so it is available in every session:
 
 - **Short path:** `npx skills add ./ -g -a claude-code -a codex` from the repo root (the cross-agent Agent Skills installer; asks before writing).
 - **Manual path (always works):** copy the folder `skills/job-search` to
-  - Claude Code: `~/.claude/skills/job-search/`
-  - Codex: `~/.agents/skills/job-search/`
+  - Claude Code: `~/.claude/skills/job-search/` (Windows: `%USERPROFILE%\.claude\skills\job-search\`)
+  - Codex: `~/.agents/skills/job-search/` (Windows: `%USERPROFILE%\.agents\skills\job-search\`)
 
 Start a new session and say "set up my job search" (Claude Code: `/job-search setup`; Codex: `$job-search setup`). From here, `skills/job-search/SKILL.md` is the source of truth.
 
@@ -74,13 +81,16 @@ run (daily, can be unattended)
                        marks emails processed, writes runs/<date>/report.md
 ```
 
-Two modes, chosen during setup:
+Which mailbox path to use (details in `skills/job-search/references/mail-setup.md`):
 
-| | Engine mode | Host-connector mode |
+| User's mailbox | Claude Code | Codex |
 |---|---|---|
-| Mailbox | Gmail through IMAP with an app password | your own Gmail/Outlook connector or plugin; you export emails to JSON and call `jobsearch ingest` |
-| Sheet | a Google Sheet with the bundled Apps Script deployed as a web app | your own Google Sheets/Drive tool; you append the rows the engine leaves in `commit.json` |
-| Works from cron / `codex exec` | yes | only where the connectors exist (Claude Code; Codex plugins unverified headless) |
+| Gmail | Gmail connector (host-connector), or app password (engine) | app password (engine), or Gmail plugin (host-connector) |
+| Outlook, personal (outlook.com, hotmail) | Outlook MCP server, no Azure setup (host-connector) | same |
+| Outlook, work/school | Microsoft 365 connector or the MCP server (host-connector) | Outlook plugin or the MCP server (host-connector) |
+| Anything else | webmail in the browser (host-browser), while the user watches | same, if a browser tool is installed |
+
+The tracker is always a Google Sheet: written by the agent's Sheets/Drive tool when it has one (host-connector), otherwise by the engine through a small Apps Script web app the user deploys once (`templates/sheet/README.md`). Platform and runtime differences (paths, approvals, network, scheduling): `skills/job-search/references/runtimes.md` and `scheduling.md`.
 
 Where the user's data lives: workspace `~/job-search/` (config, profile, rubric, CV, runs, logs); secrets `~/.job-search/secrets.json`. Neither is in this repo.
 
@@ -94,9 +104,11 @@ Where the user's data lives: workspace `~/job-search/` (config, profile, rubric,
 | Other boards (Indeed, Glassdoor, Wellfound, feeds) | generic link extractor only; dedicated support is M4 |
 | Interview, profile, rubric, ATS CV in Markdown | instructions in the skill; not yet run with a new user |
 | CV as docx and PDF (`jobsearch cv build`) | not built (M2) |
-| Outlook | not built (M3); use host-connector or host-browser mode meanwhile |
+| Outlook | through the agent: MCP server or connector (host-connector); documented, not yet run live |
 | Status updates from emails, tailored CV and cover letter, LinkedIn sync | not built (M5) |
-| `jobsearch schedule`, npm package | not built (M6); scheduling is explained in `skills/job-search/references/scheduling.md` |
+| Scheduling | documented per app and OS in `scheduling.md` (app scheduler, cloud routine, launchd, Task Scheduler); no helper command yet |
+| Windows | code is path-safe and CI runs on Windows; not yet run on a real Windows machine |
+| npm package | not published (M6); install from the clone |
 
 Roadmap: `docs/ROADMAP.md`.
 

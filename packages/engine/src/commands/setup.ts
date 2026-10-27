@@ -36,9 +36,8 @@ async function mailSetup(opts: GlobalOpts & { provider?: Config['mail']['provide
       message: 'How should the engine read your job-alert emails?',
       options: [
         { value: 'gmail-imap', label: 'Gmail with an app password (IMAP)', hint: 'needs 2-Step Verification; no Google Cloud project' },
-        { value: 'host-connector', label: 'My agent already has Gmail/Outlook tools', hint: 'the agent reads the mailbox and hands the engine JSON' },
+        { value: 'host-connector', label: 'My agent has Gmail or Outlook tools (connector, plugin or MCP server)', hint: 'Outlook users: this one; see references/mail-setup.md' },
         { value: 'host-browser', label: 'My agent has a browser', hint: 'the agent opens Gmail/Outlook web with my session' },
-        { value: 'outlook-mcp', label: 'Outlook / Microsoft 365 (device-code login)', hint: 'milestone 3' },
       ],
       initialValue: provider,
     });
@@ -102,7 +101,7 @@ async function mailSetup(opts: GlobalOpts & { provider?: Config['mail']['provide
   }
 
   if (provider === 'outlook-mcp') {
-    throw new Error('Outlook arrives in milestone 3. Pick host-connector or host-browser for now.');
+    throw new Error('The engine does not read Outlook directly. Use --provider host-connector with the Outlook MCP server or connector (see references/mail-setup.md in the skill).');
   }
 
   saveConfig(ctx.workspace, { ...config, mail: { ...config.mail, provider } });
@@ -172,7 +171,7 @@ export function registerSetup(program: Command): void {
   mail
     .command('setup')
     .description('Choose how alert emails are read (Gmail app password, host connector, host browser) and detect alert senders')
-    .option('--provider <name>', 'gmail-imap | host-connector | host-browser | outlook-mcp')
+    .option('--provider <name>', 'gmail-imap | host-connector | host-browser')
     .option('--user <email>', 'Gmail address (non-interactive)')
     .option('--app-password <pw>', 'Gmail app password (non-interactive; prefer the prompt)')
     .option('-y, --yes', 'non-interactive')

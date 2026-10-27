@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Command } from 'commander';
 import * as p from '@clack/prompts';
 import { ConfigSchema, DEFAULT_CONFIG } from '../schema/index.js';
@@ -74,7 +75,8 @@ export function registerInit(program: Command): void {
 
 /** Cloud routines only see files committed in the workspace repo, so copy the skill in. */
 function copySkillIntoWorkspace(workspace: string): void {
-  const here = path.dirname(new URL(import.meta.url).pathname);
+  // fileURLToPath, not URL.pathname: handles spaces (%20) and Windows drive letters.
+  const here = path.dirname(fileURLToPath(import.meta.url));
   const candidates = [
     path.resolve(here, '../../../../skills/job-search'),      // monorepo checkout (src/commands -> repo root)
     path.resolve(here, '../../../skills/job-search'),         // dist/commands inside the published package

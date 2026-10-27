@@ -37,6 +37,11 @@ export const ConfigSchema = z.object({
     batchSize: z.number().int().min(1).max(50).default(15),
     headless: z.boolean().default(true),
   }).prefault({}),
+  /** How the daily run is triggered; informative, written by the agent during setup. */
+  schedule: z.object({
+    kind: z.enum(['none', 'claude-desktop', 'codex-desktop', 'claude-cloud', 'launchd', 'task-scheduler', 'cron']).default('none'),
+    time: z.string().optional(),
+  }).prefault({}),
   sources: z.object({
     /** Email extractors enabled, in priority order. 'generic' is always the fallback. */
     email: z.array(z.string()).default(['linkedin', 'generic']),
