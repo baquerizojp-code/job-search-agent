@@ -1,10 +1,10 @@
 ---
 name: job-search
-description: Automates a remote job search end to end. Reads job-alert emails (LinkedIn and other boards, Gmail or Outlook), scores every vacancy 1-10 against the user's profile and rubric, tracks everything in a Google Sheet, and builds the profile, ATS-friendly CV, tailored CVs and cover letters. Use for "job search", "score my job alerts", "run the job scorer", "set up my job hunt", "tailor my CV for this job", or when a scheduled run asks for it.
+description: Automates a remote job search end to end. Reads job-alert emails (LinkedIn and other boards, Gmail or Outlook), scores every vacancy 1-10 against the user's profile and rubric, tracks everything in a Google Sheet, builds the profile and an improved ATS-friendly CV (Markdown, Word and PDF), and updates the LinkedIn profile with the user confirming each save. Use for "job search", "score my job alerts", "run the job scorer", "set up my job hunt", "improve my CV", "update my LinkedIn", or when a scheduled run asks for it.
 license: MIT
 compatibility: Claude Code and Codex on macOS or Windows; Gmail or Outlook. Needs Node 20+ and the `jobsearch` CLI from the job-search-agent repo.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   repo: https://github.com/baquerizojp-code/job-search-agent
 ---
 
@@ -12,7 +12,7 @@ metadata:
 
 Two layers. The **engine** (`jobsearch` CLI) does every deterministic step: mailbox, job pages, Google Sheet, files, validation. **You** do every step that needs judgment: interviewing the user, scoring postings, writing CVs and letters, classifying emails. You and the engine exchange JSON files inside the user's workspace (default `~/job-search`). Never paste long content through the terminal; write files.
 
-Commands you support: `setup`, `run`, `status`, `apply <row or url>`, `cv refresh`, `linkedin-sync`. If the user's request does not name one, pick the closest. `status`, `apply`, `cv refresh` and `linkedin-sync` arrive in later milestones; tell the user so if they ask.
+Commands you support: `setup`, `run`, `cv`, `cv refresh`, `linkedin-sync`. If the user's request does not name one, pick the closest ("improve my CV" is `cv`, "update my LinkedIn" is `linkedin-sync`). `status` and `apply <row or url>` arrive in a later milestone; tell the user so if they ask.
 
 ## Ground rules
 
@@ -31,16 +31,16 @@ jobsearch --version
 
 If that fails, the engine is not installed yet. It is not on npm yet: install it from a checkout of https://github.com/baquerizojp-code/job-search-agent following the "Install for a user" section of that repo's AGENTS.md (clone, `pnpm install`, `pnpm build`, `npm link` in `packages/engine`, `npx playwright install chromium`). Node 20 or newer is required. On Windows run these in PowerShell. Then `jobsearch doctor` tells you what is missing; fix what it lists before continuing.
 
-Before setup, explain to the user in a few sentences what will happen (CV, short interview, profile and rubric, ATS CV, mailbox, Sheet, first run, daily schedule) and what is not built yet (CV as docx/PDF, Outlook, tailored CVs and cover letters, LinkedIn sync). AGENTS.md in the repo has a ready explanation.
+Before setup, explain to the user in a few sentences what will happen (CV, short interview, profile and rubric, ATS CV, mailbox, Sheet, first run, daily schedule) and what is not built yet (tailored CVs and cover letters per vacancy, status updates from emails). AGENTS.md in the repo has a ready explanation.
 
 ## `setup` (first time, interactive)
 
 Work through these in order. Each step is idempotent, so a `setup` after a partial one only fills gaps.
 
-1. **Workspace.** `jobsearch init` (add `--language es` etc. and `--timezone` from what the user tells you; `--cv <file>` if they hand you a Markdown CV; `--cloud` only if they want cloud scheduling). Ask for their CV in any format; if it is PDF or docx, read it with your own file tools and save the text as `<workspace>/cv/source.md` yourself.
+1. **Workspace.** `jobsearch init` (add `--language es` etc. and `--timezone` from what the user tells you; `--cloud` only if they want cloud scheduling). Ask for their CV and import it: `jobsearch cv import <file>` (PDF, Word .docx, Markdown or text) writes `<workspace>/cv/source.md`. If it fails because the PDF is a scan, read the file with your own tools and save the text there yourself, or ask for a Word version.
 2. **Interview.** Follow [references/interview.md](references/interview.md): 8 fixed questions, up to 5 extra only when the CV leaves real gaps. One question at a time, in the workspace language.
 3. **Profile and rubric.** Write `<workspace>/profile.md` using [references/profile-template.md](references/profile-template.md) and `<workspace>/rubric.md` using [references/rubric-template.md](references/rubric-template.md). Show the user both and adjust until they agree. Be calibrated, not flattering.
-4. **CV.** Write `<workspace>/cv/cv.md` following [references/cv-ats-guide.md](references/cv-ats-guide.md) (milestone 2 adds `jobsearch cv build` for docx and pdf).
+4. **CV.** Follow [references/cv-ats-guide.md](references/cv-ats-guide.md): write `<workspace>/cv/cv.md` (improved, not just reformatted), `jobsearch cv lint`, review the changes with the user, then `jobsearch cv build` for `cv.docx` and `cv.pdf`. Offer `linkedin-sync` afterwards; do not start it unasked.
 5. **Mailbox.** Gmail or Outlook. Follow [references/mail-setup.md](references/mail-setup.md): it picks one of five paths (Gmail connector, Gmail app password, Outlook connector, Outlook MCP server, webmail in the browser) from what the user has and what tools you have, and says how each one runs unattended. Then confirm the user has at least one job alert set up on LinkedIn (and other boards they use), emailed to this mailbox. Without alerts there is nothing to read.
 6. **Tracker.** The tracker is always a Google Sheet, also for Outlook users (a free Google account is enough). You have a Google Sheets or Drive tool: create a spreadsheet named "Job search tracker" with tabs `Jobs` and `Skipped`, header row exactly `Date | Source | Company | Role | Location | Link | Score | Verdict | Match Summary | Red Flags | Status | Status Updated | Notes | Job ID`, then `jobsearch sheet setup --provider host-connector --sheet-url <url> -y`. No tool: `jobsearch sheet setup` interactively, which walks the user through creating a Sheet and deploying the Apps Script from templates/sheet/README.md.
 7. **Check.** `jobsearch doctor` must be all green. Then do one `run` together with the user watching.
@@ -71,12 +71,22 @@ Read the JSON the engine prints. Then:
 
 If `fetch` says `messages: 0`, there is nothing new: say so and stop.
 
+## `cv` (CV only, interactive)
+
+For users who want a better CV before (or without) the daily run: setup steps 1 to 4 only. `jobsearch init` if there is no workspace yet, `jobsearch cv import`, the interview, profile and rubric, the CV, lint, review, build. No mailbox, Sheet or schedule. They can run `setup` later; it skips what is already done.
+
+## `cv refresh` (interactive)
+
+The user wants to change one thing (new job, new target role, new numbers). Read `interview.md`, ask only about that, update the answer there, then update `profile.md` / `rubric.md` if the change affects scoring, and `cv/cv.md`. Lint, review, build as in step 4.
+
+## `linkedin-sync` (interactive, never unattended)
+
+Follow [references/linkedin-sync.md](references/linkedin-sync.md): draft `linkedin/profile.md` from the CV, `jobsearch linkedin check` until it fits LinkedIn's limits, then paste one section at a time in the user's signed-in browser, showing the text and waiting for their yes before every save. No browser tool: hand them the file and walk them through it.
+
 ## Later commands
 
 - `status`: classify new emails from companies the user applied to and update the Status column (milestone 5, [references/status-classifier.md](references/status-classifier.md)).
 - `apply <row or url>`: tailored CV and cover letter for one vacancy (milestone 5).
-- `cv refresh`: re-ask one interview dimension and regenerate the CV (milestone 2).
-- `linkedin-sync`: paste the updated profile into LinkedIn section by section with the user confirming each save (milestone 5, [references/linkedin-sync.md](references/linkedin-sync.md)).
 
 ## When something fails
 

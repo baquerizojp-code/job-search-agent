@@ -8,6 +8,7 @@ import { configPath, saveConfig } from '../core/config.js';
 import { ensureDir, writeJson, writeText } from '../core/fsutil.js';
 import { pointerPath, resolveWorkspace } from '../core/paths.js';
 import { emit } from './context.js';
+import { importCvIntoWorkspace } from './cv.js';
 
 const WORKSPACE_README = `# Job search workspace
 
@@ -29,7 +30,7 @@ export function registerInit(program: Command): void {
     .option('-y, --yes', 'accept defaults without prompting')
     .option('--language <code>', 'language for interviews and documents (en, es, ...)')
     .option('--timezone <tz>', 'IANA time zone, e.g. America/Guayaquil')
-    .option('--cv <file>', 'copy an existing Markdown CV into cv/source.md')
+    .option('--cv <file>', 'import an existing CV (PDF, .docx, Markdown or text) into cv/source.md')
     .option('--cloud', 'also copy the skill into .claude/skills and .agents/skills (needed for cloud routines)')
     .action(async (dir: string | undefined, opts: { yes?: boolean; language?: string; timezone?: string; cv?: string; cloud?: boolean }) => {
       const workspace = dir ? path.resolve(dir) : resolveWorkspace();
@@ -62,14 +63,11 @@ export function registerInit(program: Command): void {
       saveConfig(workspace, config);
       if (!fs.existsSync(path.join(workspace, 'README.md'))) writeText(path.join(workspace, 'README.md'), WORKSPACE_README);
       if (!fs.existsSync(path.join(workspace, '.gitignore'))) writeText(path.join(workspace, '.gitignore'), 'logs/\nruns/*/batch-*.json\nstate/\n');
-      if (opts.cv) {
-        if (!fs.existsSync(opts.cv)) throw new Error(`CV not found: ${opts.cv}`);
-        fs.copyFileSync(opts.cv, path.join(workspace, 'cv', 'source.md'));
-      }
+      const cvImport = opts.cv ? await importCvIntoWorkspace(workspace, opts.cv) : undefined;
       writeJson(pointerPath(), { workspace });
       if (opts.cloud) copySkillIntoWorkspace(workspace);
       if (!opts.yes && process.stdin.isTTY) p.outro(`Workspace ready at ${workspace}`);
-      emit({ workspace, config: configPath(workspace), language, timezone, cloudSkillCopied: Boolean(opts.cloud) });
+      emit({ workspace, config: configPath(workspace), language, timezone, cv: cvImport, cloudSkillCopied: Boolean(opts.cloud) });
     });
 }
 

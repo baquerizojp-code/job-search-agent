@@ -1,6 +1,6 @@
 {
   "name": "jobsearch-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Deterministic engine for the job-search agent skill: mail, scraping, Google Sheet tracker, validation",
   "license": "MIT",
   "type": "module",
@@ -24,10 +24,13 @@
   "dependencies": {
     "@clack/prompts": "^1.8.1",
     "commander": "^15.0.0",
+    "docx": "^9.15.3",
     "html-to-text": "^9.0.5",
     "imapflow": "^2.9.1",
     "mailparser": "^3.12.4",
+    "mammoth": "^1.13.0",
     "playwright": "^1.64.1",
+    "unpdf": "^2.1.0",
     "zod": "^4.1.0"
   },
   "devDependencies": {

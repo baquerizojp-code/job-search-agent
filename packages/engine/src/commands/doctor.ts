@@ -28,6 +28,10 @@ export function registerDoctor(program: Command): void {
         checks.push({ name: f, ok, detail: ok ? 'present' : 'missing: the agent writes it during setup (interview)' });
       }
 
+      // Informative only: the CV is optional for the daily run.
+      const cvFiles = ['source.md', 'cv.md', 'cv.docx', 'cv.pdf'].filter((f) => fs.existsSync(`${workspace}/cv/${f}`));
+      checks.push({ name: 'cv', ok: true, detail: cvFiles.length ? `cv/: ${cvFiles.join(', ')}` : 'no CV yet: `jobsearch cv import <file>`, then the agent writes cv/cv.md and runs `jobsearch cv build`' });
+
       try {
         const { chromium } = await import('playwright');
         const exe = chromium.executablePath();
