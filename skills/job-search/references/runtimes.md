@@ -20,7 +20,7 @@ The skill and the engine are the same everywhere. What changes is where things l
 | | Claude Code | Codex |
 |---|---|---|
 | Interactive | `/job-search setup`, `/job-search run`, or plain language | `$job-search setup`, `$job-search run`, or plain language |
-| Headless | `claude -p "/job-search run"` | `codex exec 'Use $job-search to do the daily run'` |
+| Headless | `claude -p "/job-search run"` | `codex exec -c sandbox_workspace_write.network_access=true 'Use $job-search to do the daily run'` |
 
 ## Permissions and network
 
@@ -44,7 +44,7 @@ The skill and the engine are the same everywhere. What changes is where things l
 | Google Sheets | claude.ai Google Drive / Sheets connector | Google Drive plugin |
 | Outlook personal | MCP server (mail-setup.md path 4) | MCP server (mail-setup.md path 4) |
 | Outlook work | Microsoft 365 connector (admin consent) or MCP server | Outlook plugin if the org allows it, or MCP server |
-| Browser | built-in browser or Claude in Chrome | Playwright MCP or the app's browser, if installed |
+| Browser (pending job pages, LinkedIn sync) | Claude in Chrome (user's own signed-in Chrome) or the built-in browser | Playwright or Chrome MCP server, or the app's browser, if installed; otherwise the user pastes LinkedIn sections by hand |
 
 If the connector you need is missing, the engine paths always work: Gmail app password and the Apps Script Sheet.
 
