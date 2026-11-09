@@ -8,7 +8,7 @@ Write every answer to `<workspace>/interview.md` as soon as it arrives (`## <que
 
 ## Opening confirmation (before question 1)
 
-One line, not a question of its own: "Your CV ends with <last role> in <month year>. What has changed since then?" New jobs, freelance work, projects and certifications from that answer go into the CV; this is the most common gap in an old CV.
+One line, not a question of its own: "Your CV ends with <last role> in <month year>. What has changed since then?" New jobs, freelance work, projects and certifications from that answer go into the CV; this is the most common gap in an old CV. In the same message, confirm the contact line the CV needs (email, phone, LinkedIn URL, portfolio) and ask only for what is missing.
 
 ## Fixed questions (always, in this order)
 

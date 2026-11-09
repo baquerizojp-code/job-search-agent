@@ -71,7 +71,8 @@ export function registerCv(program: Command): void {
 
       const docx = `${base}.docx`;
       fs.writeFileSync(docx, await renderDocx(doc));
-      const result: Record<string, unknown> = { ok: true, input, docx, warnings: lint.warnings, stats: lint.stats };
+      const warnings = [...lint.warnings];
+      const result: Record<string, unknown> = { ok: true, input, docx, warnings, stats: lint.stats };
 
       if (opts.pdf) {
         const pdf = `${base}.pdf`;
@@ -79,7 +80,7 @@ export function registerCv(program: Command): void {
           await htmlToPdf(renderHtml(doc, config.language), pdf, paper);
           const { pages } = await pdfText(new Uint8Array(fs.readFileSync(pdf)));
           Object.assign(result, { pdf, paper, pages });
-          if (pages > 2) lint.warnings.push({ rule: 'length', message: `The PDF has ${pages} pages; aim for two at most.` });
+          if (pages > 2) warnings.push({ rule: 'pages', message: `The PDF has ${pages} pages; aim for two at most.` });
         } catch (e) {
           Object.assign(result, { ok: false, pdfError: `${(e as Error).message.split('\n')[0]} (run \`npx playwright install chromium\`, or build with --no-pdf)` });
           process.exitCode = 1;

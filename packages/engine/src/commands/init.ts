@@ -35,9 +35,11 @@ export function registerInit(program: Command): void {
     .action(async (dir: string | undefined, opts: { yes?: boolean; language?: string; timezone?: string; cv?: string; cloud?: boolean }) => {
       const workspace = dir ? path.resolve(dir) : resolveWorkspace();
       const exists = fs.existsSync(configPath(workspace));
+      const existing = exists ? ConfigSchema.parse(JSON.parse(fs.readFileSync(configPath(workspace), 'utf8'))) : DEFAULT_CONFIG;
       const sysTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-      let language = opts.language ?? 'en';
-      let timezone = opts.timezone ?? sysTz;
+      // Re-running init only changes what is passed: an existing language or time zone is kept.
+      let language = opts.language ?? (exists ? existing.language : 'en');
+      let timezone = opts.timezone ?? (exists ? existing.timezone : sysTz);
 
       if (!opts.yes && process.stdin.isTTY) {
         p.intro('job-search workspace');
@@ -58,7 +60,6 @@ export function registerInit(program: Command): void {
       }
 
       for (const sub of ['cv', 'cv/tailored', 'runs', 'state', 'logs', 'linkedin']) ensureDir(path.join(workspace, sub));
-      const existing = exists ? ConfigSchema.parse(JSON.parse(fs.readFileSync(configPath(workspace), 'utf8'))) : DEFAULT_CONFIG;
       const config = ConfigSchema.parse({ ...existing, language, timezone });
       saveConfig(workspace, config);
       if (!fs.existsSync(path.join(workspace, 'README.md'))) writeText(path.join(workspace, 'README.md'), WORKSPACE_README);
@@ -67,7 +68,7 @@ export function registerInit(program: Command): void {
       writeJson(pointerPath(), { workspace });
       if (opts.cloud) copySkillIntoWorkspace(workspace);
       if (!opts.yes && process.stdin.isTTY) p.outro(`Workspace ready at ${workspace}`);
-      emit({ workspace, config: configPath(workspace), language, timezone, cv: cvImport, cloudSkillCopied: Boolean(opts.cloud) });
+      emit({ ok: true, workspace, config: configPath(workspace), language, timezone, cv: cvImport, cloudSkillCopied: Boolean(opts.cloud) });
     });
 }
 

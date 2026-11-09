@@ -27,16 +27,16 @@ Location: <City, Country or Remote>
 
 ## Skills
 
-<comma-separated, most relevant first, at most 50>
+<comma-separated, most relevant first; keep it to 50 or fewer>
 ```
 
-One `###` block per role, newest first, only roles that should change on LinkedIn. Then:
+One `###` block per role in the CV, newest first (the oldest one-line roles can be left out). Write `Dates:` exactly as in the CV; when it has only a year, the user picks the month in LinkedIn's form. In the browser step, skip positions that already match. Then:
 
 ```
 jobsearch linkedin check
 ```
 
-It counts characters as they will be pasted (bullets become `• ` lines) against LinkedIn's limits: Headline 220, About 2,600, position title 100, position description 2,000, 50 skills. Shorten anything red and run it again until `ok` is true. Show the user the whole draft and adjust until they approve it.
+It counts characters as they will be pasted (bullets become `• ` lines) against LinkedIn's limits (Headline 220, About 2,600, position title 100, position description 2,000) and a recommended cap of 50 skills, so the list stays focused. Shorten anything red and run it again until `ok` is true. Show the user the whole draft and adjust until they approve it.
 
 ## 2. Before touching the browser
 
