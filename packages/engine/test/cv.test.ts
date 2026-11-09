@@ -91,6 +91,13 @@ describe('cv render and import', () => {
     expect(() => detectFormat('cv.pages')).toThrow(/Unsupported/);
   });
 
+  it('imports a PDF CV (fixture built by cv build) with its text layer', async () => {
+    const { text, format, warnings } = await importCv(path.join(__dirname, 'fixtures', 'cv-good.pdf'));
+    expect(format).toBe('pdf');
+    expect(warnings).toEqual([]);
+    for (const needle of ['Maria Example', 'Summary', 'Experience', 'UTC-5', 'Reduced failed syncs from 12% to 2%']) expect(text).toContain(needle);
+  });
+
   it.skipIf(!chromiumInstalled())('builds a PDF an ATS can read back, within two pages', async () => {
     const dir = tmp();
     const pdf = path.join(dir, 'cv.pdf');

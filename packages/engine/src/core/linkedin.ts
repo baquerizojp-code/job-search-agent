@@ -1,7 +1,7 @@
 import { parseCv, plainText, type Block } from './cv/parse.js';
 
 /**
- * Character limits LinkedIn enforces in the profile editor. The agent writes
+ * Character limits LinkedIn enforces in the profile editor (plus a recommended skills cap). The agent writes
  * <workspace>/linkedin/profile.md (format in skills/job-search/references/linkedin-sync.md)
  * and this check proves every section fits before anything is pasted.
  */
@@ -11,6 +11,7 @@ export const LINKEDIN_LIMITS = {
   positionTitle: 100,
   positionDescription: 2000,
   skillName: 80,
+  /** Not a LinkedIn limit: a cap the skill recommends so the list stays focused. */
   skills: 50,
 } as const;
 

@@ -29,19 +29,21 @@ Then, every day:
 
 ## Start with your CV
 
-You can use only the CV part, with no mailbox or tracker. Open Codex or Claude Code in an empty folder and paste this (put the path to your CV where it says so):
+You can use only the CV part, with no mailbox or tracker. Open Codex or Claude Code in an empty folder and paste this (put the path to your CV where it says so). Keeping the workspace inside that folder means fewer approval prompts in Codex:
 
 ```text
-Clone https://github.com/baquerizojp-code/job-search-agent, read its AGENTS.md and install it for me.
-Ask before any step that needs network or writes outside this folder.
-Then use the job-search skill with the `cv` command, in English:
+Clone https://github.com/baquerizojp-code/job-search-agent into this folder and install its engine
+following the "Install for a user" section of its AGENTS.md. Skip installing the skill globally and
+do not ask me to start a new session: read job-search-agent/skills/job-search/SKILL.md and follow
+its `cv` command from here. Create my workspace inside this folder with
+`jobsearch init ./job-search --language en`. Then:
 1. Import my CV from <PATH TO MY CV, PDF OR WORD> with `jobsearch cv import`.
 2. Interview me one question at a time. Ask what changed since this CV and ask for real numbers
    on my recent roles. Never invent metrics.
 3. Write my profile and an improved ATS-friendly CV for remote roles, show me what you changed
    versus my original, and adjust until I approve.
 4. Run `jobsearch cv lint` and `jobsearch cv build`, and tell me where cv.docx and cv.pdf are.
-Do not touch LinkedIn yet.
+Do not touch LinkedIn yet. Ask before any step that needs network or writes outside this folder.
 ```
 
 When the CV is final, update LinkedIn with: *"Use the job-search skill to sync my LinkedIn profile from my new CV. Show me each section and wait for my OK before every save."* You need to be signed in to LinkedIn in a browser your agent can use (see [linkedin-sync.md](skills/job-search/references/linkedin-sync.md)); without one, the agent gives you the text to paste.
